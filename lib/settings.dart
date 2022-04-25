@@ -1,46 +1,40 @@
 import 'package:flutter/material.dart';
-
-import './helper/themeMode_helper.dart';
+import 'package:pokepoke/models/theme_mode.dart';
+import 'package:provider/provider.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
 
   @override
-  State<Settings> createState() => _SettingsState();
+  _SettingsState createState() => _SettingsState();
 }
 
 class _SettingsState extends State<Settings> {
-  ThemeMode _themeMode = ThemeMode.system;
-  @override
-  void initState() {
-    super.initState();
-    loadThemeMode().then((val) => setState(
-          () => _themeMode = val,
-        ));
-  }
-
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        ListTile(
-          leading: const Icon(Icons.lightbulb),
-          title: const Text('Dark/Light Mode'),
-          trailing: Text((_themeMode == ThemeMode.system)
-              ? 'System'
-              : (_themeMode == ThemeMode.dark ? 'Dark' : 'Light')),
-          onTap: () async {
-            var ret = await Navigator.of(context).push<ThemeMode>(
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ThemeModeSelectionPage(mode: _themeMode)));
-            setState(() {
-              _themeMode = ret!;
-            });
-            await saveThemeMode(_themeMode);
-          },
-        ),
-      ],
+    return Consumer<ThemeModeNotifier>(
+      builder: (context, mode, child) => ListView(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.lightbulb),
+            title: const Text('Dark/Light Mode'),
+            trailing: Text((mode.mode == ThemeMode.system)
+                ? 'System'
+                : (mode.mode == ThemeMode.dark ? 'Dark' : 'Light')),
+            onTap: () async {
+              // settingsとthememodeSelectionPageでmodeの受け渡しをするためにデータの方を<ThemeMode>で定義する
+              var ret = await Navigator.of(context).push<ThemeMode>(
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ThemeModeSelectionPage(mode: mode.mode)));
+              print(ret);
+              if (ret != null) {
+                mode.update(ret);
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -77,6 +71,7 @@ class _ThemeModeSelectionPageState extends State<ThemeModeSelectionPage> {
             RadioListTile<ThemeMode>(
               value: ThemeMode.system,
               groupValue: _current,
+              // _currentにnullは代入できないのでval!<-で明示する
               onChanged: (val) => {setState(() => _current = val!)},
               title: const Text('System'),
             ),
