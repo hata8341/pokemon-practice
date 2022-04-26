@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pokepoke/const/pokeapi.dart';
 import 'package:pokepoke/models/favorite.dart';
@@ -11,7 +12,10 @@ class PokeDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<FavoritesNotifier>(
       builder: (context, favs, child) => Scaffold(
-        body: SafeArea(
+          body: Container(
+        color: (pokeTypeColors[poke.types.first] ?? Colors.grey[100])
+            ?.withOpacity(0.5),
+        child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -32,33 +36,54 @@ class PokeDetail extends StatelessWidget {
                   onPressed: () => {favs.toggle(Favorite(pokeId: poke.id))},
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 32),
               Stack(
+                alignment: Alignment.bottomCenter,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    child: Image.network(
-                      poke.imageUrl,
-                      width: 100,
-                      height: 100,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      'No.${poke.id}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      height: 280,
+                      width: 280,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(180),
+                        color: Colors.white.withOpacity(.5),
                       ),
                     ),
-                  )
+                  ),
+                  SizedBox(
+                      child: Hero(
+                    tag: poke.name,
+                    child: CachedNetworkImage(
+                      imageUrl: poke.imageUrl,
+                      width: 250,
+                      height: 250,
+                    ),
+                  )),
                 ],
               ),
-              Text(
-                poke.name,
-                style:
-                    const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(90),
+                  color: Colors.white.withOpacity(.5),
+                ),
+                child: Text(
+                  '#${poke.id.toString().padLeft(3, "0")}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  '${poke.name.substring(0, 1).toUpperCase()}${poke.name.substring(1)}',
+                  style: const TextStyle(
+                      fontSize: 36, fontWeight: FontWeight.bold),
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -87,7 +112,7 @@ class PokeDetail extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

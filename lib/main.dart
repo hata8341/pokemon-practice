@@ -66,7 +66,11 @@ class _TopPageState extends State<TopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: currentbnb == 0 ? const PokeList() : const Settings(),
+        // 画面の表示を設定に切り替えた場合でもpokeListの状態保持するためにindexedStackを使用
+        child: IndexedStack(
+          children: const [PokeList(), Settings()],
+          index: currentbnb,
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) => {
